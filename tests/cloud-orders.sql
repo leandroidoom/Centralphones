@@ -9,6 +9,8 @@ begin
  if public.cp_bootstrap_company('Outro nome')<>org then raise exception 'Bootstrap duplicated company'; end if;
  oid:=public.cp_create_order(org,'{"cliente":"Pessoa teste","telefone":"85999991234","aparelho":"Aparelho teste","defeito":"Tela","valor":"100"}'::jsonb);
  select tracking_token into t from public.cp_service_orders where id=oid;
+ insert into storage.objects(bucket_id,name) values('cp-order-photos',org::text||'/'||oid::text||'/test.jpg');
+ if (select count(*) from storage.objects where bucket_id='cp-order-photos' and name=org::text||'/'||oid::text||'/test.jpg')<>1 then raise exception 'Photo permission failed'; end if;
  perform set_config('cp.test_order',oid::text,true);perform set_config('cp.test_org',org::text,true);perform set_config('cp.test_token',t,true);
  if (select count(*) from public.cp_order_events where service_order_id=oid)<>1 then raise exception 'Opening event missing'; end if;
  begin update public.cp_service_orders set status='delivered' where id=oid;raise exception 'Invalid transition accepted'; exception when raise_exception then if sqlerrm='Invalid transition accepted' then raise; end if; end;
@@ -28,6 +30,8 @@ do $$
 declare other uuid;
 begin
  other:=public.cp_bootstrap_company('Outra empresa');
+ if exists(select 1 from storage.objects where bucket_id='cp-order-photos') then raise exception 'Cross-tenant photos'; end if;
+ begin insert into storage.objects(bucket_id,name) values('cp-order-photos',current_setting('cp.test_org')||'/'||current_setting('cp.test_order')||'/other.jpg');raise exception 'Cross-tenant photo insert'; exception when insufficient_privilege then null; end;
  if exists(select 1 from public.cp_service_orders where id=current_setting('cp.test_order')::uuid) then raise exception 'Cross-tenant read'; end if;
  if exists(select 1 from public.cp_customers where organization_id=current_setting('cp.test_org')::uuid) then raise exception 'Cross-tenant customer read'; end if;
  begin perform public.cp_create_order(current_setting('cp.test_org')::uuid,'{}');raise exception 'Cross-tenant write'; exception when raise_exception then if sqlerrm='Cross-tenant write' then raise; end if; end;
@@ -44,4 +48,4 @@ begin
 end $$;
 reset role;
 rollback;
-select 'PASS: opening/status audit, transitions, tenant isolation, public tracking, revocation, anonymous restrictions; all fixtures rolled back' as verification;
+select 'PASS: opening/status audit, transitions, tenant/photo isolation, public tracking, revocation, anonymous restrictions; all fixtures rolled back' as verification;

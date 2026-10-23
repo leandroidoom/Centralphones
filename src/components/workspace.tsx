@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import Link from 'next/link';
 import {Menu,Plus,Sun,Moon,Settings2,Wrench,LayoutDashboard,Wallet,Package,ShoppingCart,Users,X} from 'lucide-react';
 import './workspace.css';
-const links=[['Painel','/',LayoutDashboard],['Ordens de serviço','/ordens-servico',Wrench],['PDV / Vendas','/pdv',ShoppingCart],['Caixa','/caixa',Wallet],['Estoque','/estoque',Package],['Clientes locais','/cadastros/clientes',Users]] as const;
+const links=[['Painel','/',LayoutDashboard],['Ordens de serviço','/ordens-servico',Wrench],['PDV / Vendas','/pdv',ShoppingCart],['Caixa das OS','/caixa/nuvem',Wallet],['Caixa local / PDV','/caixa',Wallet],['Estoque','/estoque',Package],['Clientes locais','/cadastros/clientes',Users]] as const;
 const colors={'Azul Royal':'#1769ff','Roxo Premium':'#8054e8','Verde Esmeralda':'#059669','Laranja Energy':'#ea7c26'};
 export default function Workspace({children,action}:{children:React.ReactNode;action?:()=>void}){
  const [menu,setMenu]=useState(false),[settings,setSettings]=useState(false),[dark,setDark]=useState(false),[color,setColor]=useState('#1769ff'),[names,setNames]=useState<Record<string,string>>({}),[loaded,setLoaded]=useState(false);

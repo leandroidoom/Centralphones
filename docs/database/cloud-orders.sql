@@ -80,7 +80,7 @@ grant select on public.cp_memberships,public.cp_organizations to authenticated;
 grant select,insert,update on public.cp_customers,public.cp_devices,public.cp_service_orders to authenticated;
 grant usage on sequence public.cp_service_orders_order_number_seq to authenticated;
 
--- Public capability endpoint: exact 256-bit random token, expiry, no PII or internal notes.
+-- Public capability endpoint: exact random token from two UUIDs, expiry, no PII or internal notes.
 -- Definer is deliberately isolated; anon cannot SELECT the underlying tables.
 create or replace function cp_private.track_order(token text) returns jsonb language sql stable security definer set search_path='' as $$
  select jsonb_build_object('order_number',o.order_number,'status',o.status,'device',d.model,'company',c.name,'updated_at',o.updated_at,

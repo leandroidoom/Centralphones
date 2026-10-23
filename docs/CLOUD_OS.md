@@ -12,7 +12,7 @@
 - Menu renomeável, quatro paletas, tema claro/escuro e botão flutuante de nova OS no módulo conectado.
 
 ## Continuidade e limites
-OS antigas permanecem em `/ordens-servico/local`, com pagamentos parciais no caixa local. Não há migração automática de clientes/OS locais para a nuvem. PDV, caixa, estoque e cadastros anteriores continuam locais. Recebimentos das novas OS ainda não integram o caixa. A listagem inicial mostra as 500 ordens mais recentes. As fotos exibidas são as 100 mais recentes por OS. A sessão é por aba (sessionStorage) com renovação de token.
+OS antigas permanecem em `/ordens-servico/local`, com pagamentos parciais no caixa local. Não há migração automática de clientes/OS locais para a nuvem. PDV, caixa, estoque e cadastros anteriores continuam locais. Recebimentos das novas OS entram em `/caixa/nuvem`, com controle em centavos no banco, idempotência e quitação obrigatória para entrega. O botão Receber saldo e entregar realiza ambas as operações na mesma transação. Estorno ainda não está disponível; OS com recebimento não pode ser cancelada. A listagem inicial mostra as 500 ordens mais recentes. As fotos exibidas são as 100 mais recentes por OS. A sessão é por aba (sessionStorage) com renovação de token.
 
 A consulta ao DistribuiPro foi bloqueada pela rede no ambiente de execução. Esta entrega implementa os requisitos explícitos e não declara paridade completa com todos os módulos do concorrente.
 
@@ -21,3 +21,6 @@ A consulta ao DistribuiPro foi bloqueada pela rede no ambiente de execução. Es
 
 ## Operação
 Somente a chave publishable é incluída no cliente. Não adicionar service_role ao frontend. O serviço padrão de e-mail do Supabase pode limitar destinatários e volume; produção requer SMTP configurado. Nenhum provedor de WhatsApp automático foi configurado. O acesso inicial e upload via navegador precisam de validação com a conta do proprietário.
+
+## Atendimento rápido
+Abertura com quatro campos essenciais (cliente, WhatsApp, aparelho e defeito); demais detalhes recolhidos. Filtros Balcão, Bancada e Retirada reduzem navegação. A aba Pagamento permite receber parcialmente ou quitar e entregar em uma ação. O banco restringe recebimentos a owner/admin/attendant.
