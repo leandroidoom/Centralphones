@@ -7,6 +7,8 @@
 - Rascunhos demonstrativos armazenados no navegador
 - Tela dedicada de ordens de serviço em /ordens-servico: cadastro, edição, busca, filtros, atualização de status e exportação CSV
 
+- Recebimentos parciais de OS integrados ao caixa local, com saldo pendente, histórico e validação em centavos. Escritas no caixa sincronizadas entre abas via Web Locks. Cancelamento de OS com recebimentos bloqueado até implementar estornos.
+
 ## Próximas entregas
 1. Extrair layout e tokens de tema em componentes reutilizáveis; aplicar tema à tela de OS.
 2. Modelar Supabase: empresas, filiais, usuários, permissões, clientes, aparelhos, OS, itens, estoque, vendas, caixa e lançamentos.
