@@ -64,6 +64,19 @@ footer{color:#a0b0c1;font-size:12px;line-height:1.6;margin-top:18px}
 <div class="actions"><button id="sync">Consultar agora</button></div>
 <p class="muted" id="status" role="status">Aguardando consulta…</p>
 </section>
+<section class="panel" id="gmail-alias-panel">
+<h2>📬 Um endereço por chip — Gmail</h2>
+<div class="muted">Você pode usar variações do seu Gmail para organizar testes diferentes e receber tudo na mesma caixa de entrada. São endereços alternativos da <b>mesma conta</b>, não novas contas de e-mail.</div>
+<label for="gmail-base" style="display:block;font-weight:700;margin:14px 0 8px">Seu Gmail principal</label>
+<input id="gmail-base" type="email" autocomplete="email" placeholder="seunome@gmail.com" style="width:100%;font-size:16px;color:#fff;background:#0a1727;padding:12px;border:1px solid #38576a;border-radius:10px">
+<div style="margin:12px 0" class="code" id="gmail-new">Digite seu Gmail e toque em Gerar endereço</div>
+<div class="actions">
+<button class="primary" id="gmail-generate" type="button">Gerar endereço para este chip</button>
+<button id="gmail-copy" type="button">Copiar endereço</button>
+</div>
+<p id="gmail-message" role="status" class="muted"></p>
+<div class="notice warning" style="margin-top:10px"><b>Importante:</b> este recurso apenas organiza os testes. Não cria um perfil eSIM e não autoriza testes gratuitos adicionais na WellRoam. O fornecedor informa o limite de um teste grátis por pessoa, independentemente do e-mail.</div>
+</section>
 <section class="panel" id="wellroam-panel">
 <h2>📩 QR recebido por e-mail — WellRoam</h2>
 <div class="muted">Recebeu um eSIM da WellRoam? Abra o e-mail, tire um print do QR e importe a imagem aqui. O leitor extrai os dados para mostrar o código grande na bancada. Tudo é processado no navegador, sem enviar a imagem ou a chave de ativação a este site.</div>
@@ -207,6 +220,32 @@ $("copy-lpa").onclick=async function(){
   if(!value){$("well-status").textContent="Importe um QR ou cole o código primeiro.";return;}
   try{await navigator.clipboard.writeText(value);$("well-status").textContent="Código de ativação copiado."}
   catch(e){$("well-status").textContent="Não foi possível copiar automaticamente. Selecione e copie os dados no campo abaixo."}
+};
+
+
+/* Variações Gmail somente para identificar testes, sem cadastro automático. */
+let gmailAliasCurrent="";
+function getStoredGmail(){try{return localStorage.getItem("esim-gmail-base")||""}catch(e){return""}}
+function setStoredGmail(v){try{localStorage.setItem("esim-gmail-base",v)}catch(e){}}
+$("gmail-base").value=getStoredGmail();
+$("gmail-generate").onclick=function(){
+  const base=$("gmail-base").value.trim().toLowerCase();
+  const parts=/^([a-z0-9][a-z0-9._+-]*)@gmail\.com$/.exec(base);
+  if(!parts){$("gmail-message").textContent="Informe um endereço @gmail.com válido.";$("gmail-message").className="muted error";return}
+  const local=parts[1].split("+")[0];
+  const now=new Date();
+  const dt=now.getFullYear().toString()+String(now.getMonth()+1).padStart(2,"0")+String(now.getDate()).padStart(2,"0");
+  let num="";try{const a=new Uint32Array(1);crypto.getRandomValues(a);num=(a[0]%100000000).toString().padStart(8,"0")}catch(e){num=Math.floor(Math.random()*1e8).toString().padStart(8,"0")}
+  gmailAliasCurrent=local+"+chip"+dt+"-"+num+"@gmail.com";
+  setStoredGmail(local+"@gmail.com");
+  $("gmail-new").textContent=gmailAliasCurrent;
+  $("gmail-message").className="muted ok";
+  $("gmail-message").textContent="Novo endereço de identificação criado. Os e-mails enviados a ele chegam ao Gmail principal, se o remetente aceitar o formato +.";
+};
+$("gmail-copy").onclick=async function(){
+  if(!gmailAliasCurrent){$("gmail-message").textContent="Gere um endereço primeiro.";return}
+  try{await navigator.clipboard.writeText(gmailAliasCurrent);$("gmail-message").textContent="Endereço copiado."; $("gmail-message").className="muted ok";}
+  catch(e){$("gmail-message").textContent="Não foi possível copiar automaticamente. Selecione e copie o endereço acima."}
 };
 
 $("sync").onclick=sync;
